@@ -1,0 +1,40 @@
+flowchart TD
+    A([Homepage]) --> B{User Action}
+    B --> |Category Buttons| C[Display category items in list]
+    B --> |Search Bar| D[Process search query]
+    B --> |About Button| E[Open about modal]
+
+    C --> F[Item list appears below categories]
+    E --> L[Close modal] --> A
+
+    D --> G{Search Results}
+    G --> |Exact Match| H[Display single item details]
+    G --> |Multiple Results| I[Search results replace content]
+    G --> |No Results| M[Show 'no results' message]
+
+    F --> J{User clicks item from list}
+    J --> K[Displays item details with back to category list]
+
+    I --> N{User clicks item from search results}
+    N --> O[Display item details with back to search]
+
+    H --> K
+    M --> D
+
+    K --> |Back Button| C
+    O --> |Back Button| I
+
+    style A fill:#2196f3, color:#ffffff
+    style D fill:#9c27b0, color:#ffffff
+    style G fill:#9c27b0, color:#ffffff
+    style H fill:#4caf50, color:#ffffff
+    style I fill:#ff9800, color:#ffffff
+    style K fill:#e53e3e, color:#ffffff
+    style O fill:#e53e3e, color:#ffffff
+
+    %% colors:
+    %% - Blue (A) = main states/homepage
+    %% - Purple (D,G) = Search-related processing
+    %% - Green (H) = Exact matches leading to details
+    %% - Orange (I) = Search results lists
+    %% - Red (K,O) = Detail views
