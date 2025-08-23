@@ -1,28 +1,16 @@
-//Example fetch using pokemonapi.co
-document.querySelector('button').addEventListener('click', getFetch)
-
-function getFetch() {
-  const choice = document.querySelector('input').value
-  // const url = `https://botw-compendium.herokuapp.com/api/v3/compendium/entry/${choice}`
-  const url = `https://botw-compendium.herokuapp.com/api/v3/compendium`
-  fetch(url)
-    .then(res => res.json()) // parse response as JSON
-    .then(data => {
-      console.log(data)
-      document.querySelector('h2').innerText = data.data?.name;
-      document.querySelector('img').src = data.data?.image;
-      document.getElementById('description').innerText = data.data?.description;
-    })
-    .catch(err => {
-      console.log(`error ${err}`)
-    });
-}
-
 /**
  * Orchestrates everything and handles intial setup
  */
 class CompendiumApp {
-  // Creates instances of the other classes
+  // Creates instances of the other classes...sets up the application and it's properties and methods
+  constructor() {
+    this.apiService = new APIService();
+    this.SearchEngine = new SearchEngine();
+    this.uiController = new UIController(this.apiService);
+
+    // Event listeners in the UI
+    this.uiController.setupEventListeners();
+  }
   // Coordinates the search flow (UIController -> APIService -> SearchEngine -> UIController)
 }
 
@@ -47,6 +35,7 @@ class APIService {
       .then(response => response.json()) // parse response as JSON
       .then(data => {
         this.compendiumData = data;
+        console.log('From getAllData:', this.compendiumData);
         return this.compendiumData;
       })
       .catch(err => {
@@ -61,6 +50,15 @@ class APIService {
  */
 class SearchEngine {
   // recieves search term and the data from APIService
+  searchData(searchTerm, allData) {
+    if (searchTerm.trim() === '') {
+      // return all data sorted alphabetically 
+      // const alphaSortedData = sortAlphabetically(allData);
+      // return alphaSortedData;
+      console.log('From searchData:', allData);
+      return allData;
+    }
+  }
   // Filters for exact matches first, then partial matches
   // Sorts results alphabetically
   // Returns the filtered/sorted results
@@ -70,9 +68,15 @@ class SearchEngine {
  * Coordinates with other controllers to update the DOM
  */
 class UIController {
+  // constructor to set up the class and it's properties and methods
+  constructor(apiService) { // receive the class passed in the CompendiumApp constructor
+    this.apiService = apiService; // Store it in this class to be used.
+  }
   // Listens for search button clicks/enter key
-  searchData() {
-    document.querySelector('button').addEventListener('click', getAllData);
+  setupEventListeners() {
+    document.querySelector('button').addEventListener('click', () => {
+      const allData = this.apiService.getAllData();
+    });
   }
   // Gets search term from input field
   // Displays results in the DOM
@@ -99,7 +103,8 @@ class ModalController { }
 
 class SearchResultsController { }
 
-
+// Create an instance of the compendium app
+const compendiumApp = new CompendiumApp();
 
 /**Todo List:
 1. Search query
