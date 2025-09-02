@@ -5,8 +5,8 @@ class CompendiumApp {
   // Creates instances of the other classes...sets up the application and it's properties and methods
   constructor() {
     this.apiService = new APIService();
-    this.SearchEngine = new SearchEngine();
-    this.uiController = new UIController(this.apiService);
+    this.searchEngineClass = new SearchEngine();
+    this.uiController = new UIController(this.apiService, this.searchEngineClass);
 
     // Event listeners in the UI
     this.uiController.setupEventListeners();
@@ -26,15 +26,19 @@ class APIService {
   }
 
   getAllData() {
-    if (this.compendiumData !== null) {
+    if (this.compendiumData !== null) { // if empty run the below code
       return Promise.resolve(this.compendiumData);
     }
 
     const url = `https://botw-compendium.herokuapp.com/api/v3/compendium`;
-    fetch(url)
+    return fetch(url)
       .then(response => response.json()) // parse response as JSON
-      .then(data => {
-        this.compendiumData = data;
+      .then(apiResponse => {
+        if (apiResponse.status !== 200) {
+          throw new Error(apiResponse.message);
+        }
+
+        this.compendiumData = apiResponse.data;
         console.log('From getAllData:', this.compendiumData);
         return this.compendiumData;
       })
@@ -50,32 +54,53 @@ class APIService {
  */
 class SearchEngine {
   // recieves search term and the data from APIService
-  searchData(searchTerm, allData) {
+  searchData(searchTerm, entries) {
     if (searchTerm.trim() === '') {
       // return all data sorted alphabetically 
-      // const alphaSortedData = sortAlphabetically(allData);
-      // return alphaSortedData;
-      console.log('From searchData:', allData);
-      return allData;
+      return this.sortEntriesAlphabetically(entries);
+      // console.log('From searchData:', this.sortResultsAlphabetically(allData));
     }
-  }
+    console.log('Exact match:', this.findExactMatch(searchTerm, entries));
+  };
+
   // Filters for exact matches first, then partial matches
+  findExactMatch(input, compendiumEntries) {
+    return compendiumEntries.find((entry) => {
+      return input.toLowerCase() === entry.name;
+    });
+  };
+
   // Sorts results alphabetically
+  sortEntriesAlphabetically(entries) {
+    // parameters: data results from empty search
+    // return: data results sorted alphabetically by name
+    // pseudo code:
+    return entries.sort((a, b) => a.name.localeCompare(b.name));
+  };
+
   // Returns the filtered/sorted results
 }
 
 /**
- * Coordinates with other controllers to update the DOM
+ * Coordinates with other controllers to update the DOM.
  */
 class UIController {
   // constructor to set up the class and it's properties and methods
-  constructor(apiService) { // receive the class passed in the CompendiumApp constructor
+  constructor(apiService, searchEngineClass) { // receive the class passed in the CompendiumApp constructor
     this.apiService = apiService; // Store it in this class to be used.
+    this.searchEngineClass = searchEngineClass;
   }
+
   // Listens for search button clicks/enter key
   setupEventListeners() {
     document.querySelector('button').addEventListener('click', () => {
-      const allData = this.apiService.getAllData();
+      // store search term from input
+      const searchTerm = document.querySelector('input').value;
+
+      this.apiService.getAllData().then(compendiumEntries => {
+        console.log(searchTerm);
+        this.searchEngineClass.searchData(searchTerm, compendiumEntries);
+      });
     });
   }
   // Gets search term from input field
