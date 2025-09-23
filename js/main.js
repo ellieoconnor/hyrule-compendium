@@ -23,6 +23,7 @@ class APIService {
   // provides a way for other classes to access the stored data.
   constructor() {
     this.compendiumData = null; // start with no data
+    this.getAllData(); // Get all data at page load
   }
 
   getAllData() {
@@ -60,7 +61,7 @@ class SearchEngine {
       return this.sortEntriesAlphabetically(entries);
       // console.log('From searchData:', this.sortResultsAlphabetically(allData));
     }
-    console.log('Exact match:', this.findExactMatch(searchTerm, entries));
+    return this.findExactMatch(searchTerm, entries);
   };
 
   // Filters for exact matches first, then partial matches
@@ -93,20 +94,42 @@ class UIController {
 
   // Listens for search button clicks/enter key
   setupEventListeners() {
+    // Search button click
     document.querySelector('button').addEventListener('click', () => {
       // store search term from input
       const searchTerm = document.querySelector('input').value;
 
+
       this.apiService.getAllData().then(compendiumEntries => {
-        console.log(searchTerm);
-        this.searchEngineClass.searchData(searchTerm, compendiumEntries);
+        const result = this.searchEngineClass.searchData(searchTerm, compendiumEntries);
+
+        // UI Controller decides what to display
+        if (result) {
+          this.displaySingleEntry(result);
+        }
+        // else {
+        //   this.showNoResults();
+        // }
       });
     });
+  };
+
+  // Display single entry view
+  displaySingleEntry(resultData) {
+    let itemName = null;
+    let itemCategory;
+    let itemDescription;
+    let itemImage = null;
+
+    itemName = document.getElementById('item-name').innerHTML = resultData.name;
+    itemCategory = document.getElementById('item-category').innerHTML = resultData.category;
+    itemDescription = document.getElementById('item-description').innerHTML = resultData.description;
+    itemImage = document.getElementById('item-image').src = resultData.image;
   }
-  // Gets search term from input field
-  // Displays results in the DOM
-  // Shows "no results" message when needed.
 }
+// Gets search term from input field
+// Displays results in the DOM
+// Shows "no results" message when needed.
 
 class CompendiumEntry { }
 
