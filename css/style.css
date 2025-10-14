@@ -7,18 +7,244 @@
   box-sizing: border-box;
 }
 
+/* CSS Variables - Sheikah Slate Color Palette */
+:root {
+  --primary-blue: #1a4d6d;
+  --secondary-blue: #2a7ba5;
+  --accent-cyan: #00d9ff;
+  --dark-slate: #0f1419;
+  --card-bg: #1a2832;
+  --text-light: #e8f4f8;
+  --text-cyan: #7dd3fc;
+  --border-glow: rgba(0, 217, 255, 0.3);
+  --shadow-color: rgba(0, 217, 255, 0.2);
+}
+
 body {
-  margin: 16px;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, var(--dark-slate) 0%, #1a2332 100%);
+  color: var(--text-light);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 16px;
+  min-height: 100vh;
 }
 
 /******************************************
-/* LAYOUT
+/* HEADER
 /*******************************************/
-img {
-  display: block;
-  margin: 0 auto;
+header {
+  text-align: center;
+  padding: 3rem 1rem;
+  background: linear-gradient(
+    180deg,
+    rgba(26, 77, 109, 0.3) 0%,
+    transparent 100%
+  );
+  border-bottom: 2px solid var(--accent-cyan);
+  box-shadow: 0 4px 20px var(--shadow-color);
+}
+
+header h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  margin: 0 0 0.5rem 0;
+  text-shadow: 0 0 20px rgba(0, 217, 255, 0.6), 0 0 40px rgba(0, 217, 255, 0.4);
+}
+
+header .subtitle {
+  font-size: 1.2rem;
+  color: var(--text-cyan);
+  font-weight: 500;
+  letter-spacing: 2px;
+  margin: 0;
 }
 
 /******************************************
-/* ADDITIONAL STYLES
+/* SEARCH SECTION
 /*******************************************/
+.search-section {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.search-section input {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  background: var(--card-bg);
+  border: 2px solid var(--primary-blue);
+  border-radius: 8px;
+  color: var(--text-light);
+  font-family: "Rajdhani", sans-serif;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.search-section input:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 15px var(--shadow-color);
+  background: rgba(26, 40, 50, 0.9);
+}
+
+.search-section button {
+  padding: 1rem 2rem;
+  background: linear-gradient(
+    135deg,
+    var(--secondary-blue) 0%,
+    var(--primary-blue) 100%
+  );
+  border: 2px solid var(--accent-cyan);
+  border-radius: 8px;
+  color: var(--text-light);
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: linear-gradient(
+      135deg,
+      var(--accent-cyan) 0%,
+      var(--secondary-blue) 100%
+    );
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+/******************************************
+/* RESULTS SECTION
+/*******************************************/
+.results {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+/******************************************
+/* ENTRY CARD
+/*******************************************/
+.entry-card {
+  background: var(--card-bg);
+  border: 2px solid var(--primary-blue);
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border-glow);
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 30px var(--shadow-color);
+    transform: translateY(-4px);
+  }
+}
+
+/* Card Header */
+.entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--primary-blue);
+}
+
+.entry-header h2 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.category-badge {
+  background: linear-gradient(
+    135deg,
+    var(--secondary-blue) 0%,
+    var(--primary-blue) 100%
+  );
+  color: var(--text-light);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid var(--accent-cyan);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+/* Card Body */
+.entry-body {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.image-container {
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid var(--primary-blue);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.3))
+      drop-shadow(0 0 15px rgba(100, 255, 150, 0.2));
+  }
+}
+
+.description-container h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--text-cyan);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 1rem 0;
+}
+
+.description-container p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--text-light);
+  margin: 0;
+}
+/******************************************
+/* RESPONSIVE DESIGN
+/*******************************************/
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 2rem;
+  }
+
+  .search-section {
+    flex-direction: column;
+  }
+
+  .entry-body {
+    grid-template-columns: 1fr;
+  }
+
+  .entry-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
