@@ -1,26 +1,66 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="description" content="This is where your description goes" />
-    <meta name="keywords" content="one, two, three" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Hyrule Compendium - Explore the creatures, materials, and treasures of Hyrule"
+    />
+    <meta name="keywords" content="hyrule, botw, compendium, zelda" />
 
-    <title>Title in the tab</title>
+    <title>Hyrule Compendium</title>
 
     <!-- external CSS link -->
     <link rel="stylesheet" href="css/normalize.css" />
     <link rel="stylesheet" href="css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <h1>What in the Hyrule?</h1>
-    <input type="text" name="" value="" />
-    <button type="button" name="button">Search Compendium</button>
+    <!-- Header Section -->
+    <header>
+      <h1>Hyrule Compendium</h1>
+      <p class="subtitle">Compendium of Hyrule</p>
+    </header>
 
-    <h2 id="item-name">Name?</h2>
-    <h3 id="item-category">Category</h3>
-    <img id="item-image" src="img/pokemon.jpeg" alt="" />
-    <span id="item-description">Description</span>
-    <p id="description"></p>
+    <!-- Search section -->
+    <section class="search-section">
+      <input
+        type="text"
+        placeholder="Search creatures, materials, or equipment..."
+        name=""
+        value=""
+      />
+      <button type="button" name="button">Search</button>
+    </section>
+
+    <!-- Entry Card - Appears AFTER search -->
+    <section class="results">
+      <article class="entry-card">
+        <!-- Card Header -->
+        <div class="entry-header">
+          <h2 id="item-name">Item Name</h2>
+          <span id="item-category" class="category-badge">Category</span>
+        </div>
+
+        <!-- Card Body (2 columns) -->
+        <div class="entry-body">
+          <div class="image-container">
+            <img id="item-image" src="img/botw_image.jpg" alt="" />
+          </div>
+
+          <div class="description-container">
+            <h3 class="description-label">Description</h3>
+            <p id="item-description">Description text...</p>
+          </div>
+        </div>
+      </article>
+    </section>
 
     <script type="text/javascript" src="js/main.js"></script>
   </body>
