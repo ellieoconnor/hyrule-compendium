@@ -10,6 +10,7 @@ class CompendiumApp {
 
         // Event listeners in the UI
         this.uiController.setupEventListeners();
+        this.uiController.displayCategories();
     }
     // Coordinates the search flow (UIController -> APIService -> SearchEngine -> UIController)
 }
@@ -98,7 +99,6 @@ class UIController {
             // store search term from input
             const searchTerm = document.querySelector('input').value;
 
-
             this.apiService.getAllData().then(compendiumEntries => {
                 const result = this.searchEngineClass.searchData(searchTerm, compendiumEntries);
 
@@ -111,6 +111,11 @@ class UIController {
                 // }
             });
         });
+
+        // Category click
+        document.querySelectorAll("img.category-badge").addEventListener('click', () => {
+
+        })
     };
 
     displayCategories(xyz) {
@@ -140,7 +145,8 @@ class UIController {
 
     displayCategoryList(category) {
         this.hideSingleEntry(); // Hide the entry card
-        // show entries in category
+        // another method that goes through entries and gets each catetory
+        // display at the top
     }
 }
 // Gets search term from input field
@@ -159,7 +165,11 @@ class AppStateManager { }
  */
 class NavigationController { }
 
-class CategoryController { }
+class CategoryController {
+    /**
+     * Gets the categories
+     */
+}
 
 class ItemDetailController { }
 

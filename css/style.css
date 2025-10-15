@@ -125,6 +125,17 @@ header .subtitle {
   }
 }
 /******************************************
+/* CATEGORY SECTION
+/*******************************************/
+.category-section {
+  margin: 2rem auto;
+  padding: 0 1rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  cursor: pointer;
+}
+/******************************************
 /* RESULTS SECTION
 /*******************************************/
 .results {
@@ -169,19 +180,23 @@ header .subtitle {
 }
 
 .category-badge {
-  background: linear-gradient(
-    135deg,
-    var(--secondary-blue) 0%,
-    var(--primary-blue) 100%
-  );
   color: var(--text-light);
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  border: 1px solid var(--accent-cyan);
+  padding: 0.25rem 0.5rem;
   font-size: 0.9rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
+
+  &:hover {
+    background: linear-gradient(
+      135deg,
+      var(--secondary-blue) 0%,
+      var(--primary-blue) 100%
+    );
+    border-radius: 10px;
+    border: 1px solid var(--accent-cyan);
+    transform: translateY(-2px);
+  }
 }
 /* Card Body */
 .entry-body {
