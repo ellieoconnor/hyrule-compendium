@@ -54,7 +54,7 @@ class APIService {
  * Takes search input, finds matches (including fuzzy matching), returns sorted results
  */
 class SearchEngine {
-    // recieves search term and the data from APIService
+    // receives search term and the data from APIService
     searchData(searchTerm, entries) {
         if (searchTerm.trim() === '') {
             // return all data sorted alphabetically
@@ -75,7 +75,6 @@ class SearchEngine {
     sortEntriesAlphabetically(entries) {
         // parameters: data results from empty search
         // return: data results sorted alphabetically by name
-        // pseudo code:
         return entries.sort((a, b) => a.name.localeCompare(b.name));
     };
 
@@ -114,6 +113,10 @@ class UIController {
         });
     };
 
+    displayCategories(xyz) {
+        // display categories in the DOM
+    }
+
     // Display single entry view
     displaySingleEntry(resultData) {
         let itemName = null;
@@ -121,10 +124,23 @@ class UIController {
         let itemDescription;
         let itemImage = null;
 
+        // Remove the 'hidden' class for a visible entry card
+        let entrySection = document.querySelector('.results');
+        entrySection.classList.remove('hidden');
+
         itemName = document.getElementById('item-name').innerHTML = resultData.name;
         itemCategory = document.getElementById('item-category').innerHTML = resultData.category;
         itemDescription = document.getElementById('item-description').innerHTML = resultData.description;
         itemImage = document.getElementById('item-image').src = resultData.image;
+    }
+
+    hideSingleEntry() {
+        document.querySelector('.results').classList.add('hidden');
+    }
+
+    displayCategoryList(category) {
+        this.hideSingleEntry(); // Hide the entry card
+        // show entries in category
     }
 }
 // Gets search term from input field
@@ -155,10 +171,44 @@ class SearchResultsController { }
 const compendiumApp = new CompendiumApp();
 
 /**Todo List:
-1. Search query
-  - Exact Match
-  - Results List
-  - On first search fetch all the data
-2. Category List
-3. Click Category and list results
+Phase 1: CORE FUNCTIONALITY (PRIORITY ORDER)
+    1. Display categories on page load
+        - Show all 5 category buttons (creatures, equipment, materials, monsters, treasure)
+        - Make them clickable
+    2. Category click -> Entry list view
+        - Show all entries in that category
+        - Display as grid/list of clickable items
+        - Add "Back to Categories" button
+    3. Entry list click -> Single Entry Detail
+        - Show the full entry card
+        - Add back button that returns to entry list
+    4. Search: Exact Match with Related Entries
+        - If exact match found: show entry + card + related entries section
+        - Related = same category + contains search term
+        - Only show related section if matches exist
+    5. Search: Partial matches (no exact match)
+        - Show list of all entries that contain the search term
+        - Display as clickable list
+    6. Search: No results message
+        - Show friendly message when no matches found
+    7. Empty search behaviour
+        - Do nothing, keep categories visible
+    8. Back button navigation logic
+        - Track where user came from (category list vs search)
+        - Return to appropriate view
+PHASE 2: ENHANCEMENTS (OPTIONAL):
+    1. Fuzzy matching 
+        - "mogoblin" -> "moblin"
+    2. CSS refactoring
+        - Clean up and organise styles
+*/
+
+/* 
+1. Display categories on page load
+2. Category -> entry list view
+3. Search: partial matches + results list
+4. Search: no results message
+5. Back button navigation
+6. Fuzzy matching
+7. CSS refactoring
 */
