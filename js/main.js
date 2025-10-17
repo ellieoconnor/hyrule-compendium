@@ -10,6 +10,7 @@ class CompendiumApp {
 
         // Event listeners in the UI
         this.uiController.setupEventListeners();
+        this.uiController.displayCategories();
     }
     // Coordinates the search flow (UIController -> APIService -> SearchEngine -> UIController)
 }
@@ -47,6 +48,24 @@ class APIService {
                 console.error(`Error: ${err}`);
                 throw err;
             })
+    }
+
+    getCategoryData(category) {
+        const url = `https://botw-compendium.herokuapp.com/api/v3/compendium/category/${category}`;
+        return fetch(url)
+            .then(response => response.json())
+            .then(apiResponse => {
+                if (apiResponse.status !== 200) {
+                    throw new Error(apiResponse.message);
+                }
+
+                const categoryData = apiResponse.data;
+                console.log('From category:', categoryData);
+            })
+            .catch(err => {
+                console.error(`Error: ${err}`);
+                throw err;
+            });
     }
 }
 
@@ -98,7 +117,6 @@ class UIController {
             // store search term from input
             const searchTerm = document.querySelector('input').value;
 
-
             this.apiService.getAllData().then(compendiumEntries => {
                 const result = this.searchEngineClass.searchData(searchTerm, compendiumEntries);
 
@@ -111,11 +129,17 @@ class UIController {
                 // }
             });
         });
-    };
 
-    displayCategories(xyz) {
-        // display categories in the DOM
-    }
+        // Category click
+        document.querySelectorAll("img.category-badge").forEach(badge => {
+            badge.addEventListener('click', () => {
+                let badgeCategory = badge.id
+                console.log('Category:', badgeCategory);
+                const result = this.apiService.getCategoryData(badgeCategory);
+                this.displayCategoryList(result)
+            })
+        })
+    };
 
     // Display single entry view
     displaySingleEntry(resultData) {
@@ -138,9 +162,10 @@ class UIController {
         document.querySelector('.results').classList.add('hidden');
     }
 
-    displayCategoryList(category) {
+    displayCategoryList(categoryList) {
         this.hideSingleEntry(); // Hide the entry card
-        // show entries in category
+        // another method that goes through entries and gets each catetory
+        // display at the top
     }
 }
 // Gets search term from input field
@@ -159,7 +184,11 @@ class AppStateManager { }
  */
 class NavigationController { }
 
-class CategoryController { }
+class CategoryController {
+    /**
+     * Gets the categories
+     */
+}
 
 class ItemDetailController { }
 
