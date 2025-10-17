@@ -110,20 +110,21 @@ header .subtitle {
   letter-spacing: 1px;
   cursor: pointer;
   transition: all 0.3s ease;
-
-  &:hover {
-    background: linear-gradient(
-      135deg,
-      var(--accent-cyan) 0%,
-      var(--secondary-blue) 100%
-    );
-    transform: translateY(-2px);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
 }
+
+.search-section button:hover {
+  background: linear-gradient(
+    135deg,
+    var(--accent-cyan) 0%,
+    var(--secondary-blue) 100%
+  );
+  transform: translateY(-2px);
+}
+
+.search-section button:active {
+  transform: translateY(0);
+}
+
 /******************************************
 /* RESULTS SECTION
 /*******************************************/
@@ -141,12 +142,12 @@ header .subtitle {
   padding: 2rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border-glow);
   transition: all 0.3s ease;
+}
 
-  &:hover {
-    border-color: var(--accent-cyan);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 30px var(--shadow-color);
-    transform: translateY(-4px);
-  }
+.entry-card:hover {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 30px var(--shadow-color);
+  transform: translateY(-4px);
 }
 
 /* Card Header */
@@ -200,15 +201,15 @@ header .subtitle {
   align-items: center;
   justify-content: center;
   min-height: 200px;
+}
 
-  img {
-    display: block;
-    max-width: 100%;
-    height: auto;
-    border-radius: 4px;
-    filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.3))
-      drop-shadow(0 0 15px rgba(100, 255, 150, 0.2));
-  }
+.image-container img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.3))
+    drop-shadow(0 0 15px rgba(100, 255, 150, 0.2));
 }
 
 .description-container h3 {
