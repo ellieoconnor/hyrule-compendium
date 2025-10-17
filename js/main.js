@@ -49,6 +49,24 @@ class APIService {
                 throw err;
             })
     }
+
+    getCategoryData(category) {
+        const url = `https://botw-compendium.herokuapp.com/api/v3/compendium/category/${category}`;
+        return fetch(url)
+            .then(response => response.json())
+            .then(apiResponse => {
+                if (apiResponse.status !== 200) {
+                    throw new Error(apiResponse.message);
+                }
+
+                const categoryData = apiResponse.data;
+                console.log('From category:', categoryData);
+            })
+            .catch(err => {
+                console.error(`Error: ${err}`);
+                throw err;
+            });
+    }
 }
 
 /**
@@ -113,14 +131,15 @@ class UIController {
         });
 
         // Category click
-        document.querySelectorAll("img.category-badge").addEventListener('click', () => {
-
+        document.querySelectorAll("img.category-badge").forEach(badge => {
+            badge.addEventListener('click', () => {
+                let badgeCategory = badge.id
+                console.log('Category:', badgeCategory);
+                const result = this.apiService.getCategoryData(badgeCategory);
+                this.displayCategoryList(result)
+            })
         })
     };
-
-    displayCategories(xyz) {
-        // display categories in the DOM
-    }
 
     // Display single entry view
     displaySingleEntry(resultData) {
@@ -143,7 +162,7 @@ class UIController {
         document.querySelector('.results').classList.add('hidden');
     }
 
-    displayCategoryList(category) {
+    displayCategoryList(categoryList) {
         this.hideSingleEntry(); // Hide the entry card
         // another method that goes through entries and gets each catetory
         // display at the top
