@@ -50,6 +50,11 @@ class APIService {
             })
     }
 
+    /**
+     * Get api data specifically from category endpoint
+     * @param {category} category 
+     * @returns compendiumData
+     */
     getCategoryData(category) {
         const url = `https://botw-compendium.herokuapp.com/api/v3/compendium/category/${category}`;
         return fetch(url)
@@ -61,6 +66,7 @@ class APIService {
 
                 const categoryData = apiResponse.data;
                 console.log('From category:', categoryData);
+                return this.compendiumData; // DON'T FORGET TO RETURN THE ACTUAL DATA!!
             })
             .catch(err => {
                 console.error(`Error: ${err}`);
@@ -135,8 +141,9 @@ class UIController {
             badge.addEventListener('click', () => {
                 let badgeCategory = badge.id
                 console.log('Category:', badgeCategory);
-                const result = this.apiService.getCategoryData(badgeCategory);
-                this.displayCategoryList(result)
+                this.apiService.getCategoryData(badgeCategory).then(categoryEntries => {
+                    this.displayCategoryList(badgeCategory, categoryEntries)
+                });
             })
         })
     };
@@ -162,10 +169,13 @@ class UIController {
         document.querySelector('.results').classList.add('hidden');
     }
 
-    displayCategoryList(categoryList) {
+    displayCategoryList(categoryTitle, categoryList) {
         this.hideSingleEntry(); // Hide the entry card
-        // another method that goes through entries and gets each catetory
-        // display at the top
+        let entryListSection = document.querySelector('.entry-list-section');
+        entryListSection.classList.remove('hidden');
+        // update category name
+        document.getElementById('category-title').innerHTML = categoryTitle;
+        // still need to loop through the entries and create clickable links
     }
 }
 // Gets search term from input field
