@@ -6,11 +6,11 @@ class CompendiumApp {
     constructor() {
         this.apiService = new APIService();
         this.searchEngineClass = new SearchEngine();
-        this.uiController = new UIController(this.apiService, this.searchEngineClass);
+        this.compendiumEntryClass = new CompendiumEntry(this.apiService);
+        this.uiController = new UIController(this.apiService, this.searchEngineClass, this.compendiumEntryClass);
 
         // Event listeners in the UI
         this.uiController.setupEventListeners();
-        this.uiController.displayCategories();
     }
     // Coordinates the search flow (UIController -> APIService -> SearchEngine -> UIController)
 }
@@ -53,7 +53,7 @@ class APIService {
     /**
      * Get api data specifically from category endpoint
      * @param {category} category 
-     * @returns compendiumData
+     * @returns categoryData
      */
     getCategoryData(category) {
         const url = `https://botw-compendium.herokuapp.com/api/v3/compendium/category/${category}`;
@@ -65,8 +65,8 @@ class APIService {
                 }
 
                 const categoryData = apiResponse.data;
-                console.log('From category:', categoryData);
-                return this.compendiumData; // DON'T FORGET TO RETURN THE ACTUAL DATA!!
+                console.log('From category fetch:', categoryData);
+                return categoryData; // DON'T FORGET TO RETURN THE ACTUAL DATA!!
             })
             .catch(err => {
                 console.error(`Error: ${err}`);
@@ -111,9 +111,10 @@ class SearchEngine {
  */
 class UIController {
     // constructor to set up the class and it's properties and methods
-    constructor(apiService, searchEngineClass) { // receive the class passed in the CompendiumApp constructor
+    constructor(apiService, searchEngineClass, compendiumEntryClass) { // receive the class passed in the CompendiumApp constructor
         this.apiService = apiService; // Store it in this class to be used.
         this.searchEngineClass = searchEngineClass;
+        this.compendiumEntryClass = compendiumEntryClass;
     }
 
     // Listens for search button clicks/enter key
@@ -142,7 +143,7 @@ class UIController {
                 let badgeCategory = badge.id
                 console.log('Category:', badgeCategory);
                 this.apiService.getCategoryData(badgeCategory).then(categoryEntries => {
-                    this.displayCategoryList(badgeCategory, categoryEntries)
+                    this.compendiumEntryClass.displayCategoryList(badgeCategory, categoryEntries)
                 });
             })
         })
@@ -165,10 +166,23 @@ class UIController {
         itemImage = document.getElementById('item-image').src = resultData.image;
     }
 
+
+}
+// Gets search term from input field
+// Displays results in the DOM
+// Shows "no results" message when needed.
+
+class CompendiumEntry {
+
     hideSingleEntry() {
         document.querySelector('.results').classList.add('hidden');
     }
 
+    /**
+     * Display the list of categories after a click on a category
+     * @param {} categoryTitle 
+     * @param {*} categoryList 
+     */
     displayCategoryList(categoryTitle, categoryList) {
         this.hideSingleEntry(); // Hide the entry card
         let entryListSection = document.querySelector('.entry-list-section');
@@ -176,13 +190,24 @@ class UIController {
         // update category name
         document.getElementById('category-title').innerHTML = categoryTitle;
         // still need to loop through the entries and create clickable links
+        let listOfNames = this.createArrayOfItemNames(categoryList)
+        let list = document.getElementById("entry-list-grid-results");
+        for (let i = 0; i < listOfNames.length; ++i) {
+            let li = document.createElement('li');
+            li.innerText = listOfNames[i];
+            list.appendChild(li);
+        }
+    }
+
+    // helper method? to loop through categories
+    createArrayOfItemNames(items) {
+        let listOfItemNames = items.map(entry => {
+            return entry.name.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(" ");
+        });
+
+        return listOfItemNames;
     }
 }
-// Gets search term from input field
-// Displays results in the DOM
-// Shows "no results" message when needed.
-
-class CompendiumEntry { }
 
 /**
  * Tracks current view, previous view, navigation stack
