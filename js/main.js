@@ -89,27 +89,102 @@ class UIController {
     constructor(apiService, searchEngineClass) { // receive the class passed in the CompendiumApp constructor
         this.apiService = apiService; // Store it in this class to be used.
         this.searchEngineClass = searchEngineClass;
+        // navigation / state tracking
+        this.currentView = 'categories';
+        this.previousView = null;
+        this.lastCategory = null;
+        this.lastSearchTerm = '';
     }
 
     // Listens for search button clicks/enter key
     setupEventListeners() {
         // Search button click
-        document.querySelector('button').addEventListener('click', () => {
+        const searchButton = document.querySelector('button');
+        const searchInput = document.querySelector('input');
+        searchButton.addEventListener('click', () => {
             // store search term from input
-            const searchTerm = document.querySelector('input').value;
+            const searchTerm = searchInput.value.trim();
+            this.previousView = this.currentView;
+            this.currentView = 'search';
+            this.lastSearchTerm = searchTerm;
+            this.performSearch(searchTerm);
+        });
 
+        // allow Enter key to trigger search
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                searchButton.click();
+            }
+        });
 
-            this.apiService.getAllData().then(compendiumEntries => {
-                const result = this.searchEngineClass.searchData(searchTerm, compendiumEntries);
-
-                // UI Controller decides what to display
-                if (result) {
-                    this.displaySingleEntry(result);
-                }
-                // else {
-                //   this.showNoResults();
-                // }
+        // Back button inside entry list (back to categories)
+        const backToCategories = document.getElementById('back-to-categories');
+        if (backToCategories) {
+            backToCategories.addEventListener('click', () => {
+                // show categories
+                document.querySelector('.entry-list-section').classList.add('hidden');
+                document.querySelector('.category-section').classList.remove('hidden');
+                this.previousView = this.currentView;
+                this.currentView = 'categories';
             });
+        }
+
+        // Back button from single item view
+        const backFromItem = document.getElementById('back-from-item');
+        if (backFromItem) {
+            backFromItem.addEventListener('click', () => this.handleBackFromItem());
+        }
+
+        // Render categories on load (best-effort)
+        this.renderCategories();
+    };
+
+    // Perform a search and either show a single item or results list
+    performSearch(searchTerm) {
+        this.apiService.getAllData().then(compendiumEntries => {
+            // try exact match first
+            const exact = compendiumEntries.find(e => e.name.toLowerCase() === searchTerm.toLowerCase());
+            if (exact) {
+                // show single entry; record previousView is already set
+                this.displaySingleEntry(exact);
+                return;
+            }
+
+            // otherwise show partial matches
+            const partial = compendiumEntries.filter(e => e.name.toLowerCase().includes(searchTerm.toLowerCase()));
+            this.displaySearchResults(searchTerm, partial);
+        });
+    }
+
+    // Show a list of search results (or category entries)
+    displaySearchResults(searchTerm, results) {
+        // hide other views
+        document.querySelector('.results').classList.add('hidden');
+        document.querySelector('.category-section').classList.add('hidden');
+
+        const entryListSection = document.querySelector('.entry-list-section');
+        entryListSection.classList.remove('hidden');
+        document.getElementById('category-title').innerText = `Results for "${searchTerm}"`;
+
+        const grid = document.getElementById('entry-list-grid');
+        grid.innerHTML = '';
+        if (!results || results.length === 0) {
+            grid.innerHTML = '<p>No results found.</p>';
+            return;
+        }
+
+        results.forEach(item => {
+            const el = document.createElement('button');
+            el.className = 'entry-list-item';
+            el.type = 'button';
+            el.innerText = item.name;
+            el.addEventListener('click', () => {
+                // set previous view to search so back knows where to go
+                this.previousView = 'search';
+                this.lastSearchTerm = searchTerm;
+                this.displaySingleEntry(item);
+            });
+            grid.appendChild(el);
         });
     };
 
@@ -132,6 +207,8 @@ class UIController {
         itemCategory = document.getElementById('item-category').innerHTML = resultData.category;
         itemDescription = document.getElementById('item-description').innerHTML = resultData.description;
         itemImage = document.getElementById('item-image').src = resultData.image;
+        // track navigation
+        this.currentView = 'item';
     }
 
     hideSingleEntry() {
@@ -140,7 +217,84 @@ class UIController {
 
     displayCategoryList(category) {
         this.hideSingleEntry(); // Hide the entry card
+        this.previousView = this.currentView;
+        this.currentView = 'categoryList';
+        this.lastCategory = category;
         // show entries in category
+        this.apiService.getAllData().then(entries => {
+            const filtered = entries.filter(e => e.category && e.category.toLowerCase() === category.toLowerCase());
+            document.querySelector('.category-section').classList.add('hidden');
+            const el = document.querySelector('.entry-list-section');
+            el.classList.remove('hidden');
+            document.getElementById('category-title').innerText = category;
+            const grid = document.getElementById('entry-list-grid');
+            grid.innerHTML = '';
+            filtered.forEach(item => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'entry-list-item';
+                btn.innerText = item.name;
+                btn.addEventListener('click', () => {
+                    this.previousView = 'category';
+                    this.lastCategory = category;
+                    this.displaySingleEntry(item);
+                });
+                grid.appendChild(btn);
+            });
+        });
+    }
+
+    // Handles clicking back from an item view
+    handleBackFromItem() {
+        if (this.previousView === 'category' || this.previousView === 'categoryList') {
+            // show the entry list for the last category
+            if (this.lastCategory) {
+                this.displayCategoryList(this.lastCategory);
+                return;
+            }
+        }
+
+        if (this.previousView === 'search') {
+            // re-run the search to recreate prior results
+            this.performSearch(this.lastSearchTerm || '');
+            return;
+        }
+
+        // default: go to categories
+        document.querySelector('.results').classList.add('hidden');
+        document.querySelector('.entry-list-section').classList.add('hidden');
+        document.querySelector('.category-section').classList.remove('hidden');
+        this.previousView = this.currentView;
+        this.currentView = 'categories';
+    }
+
+    // Render simple category buttons from API data (best-effort)
+    renderCategories() {
+        this.apiService.getAllData().then(entries => {
+            const grid = document.getElementById('category-grid');
+            if (!grid) return;
+            // collect unique categories (preserve casing from items)
+            const categories = [];
+            entries.forEach(e => {
+                if (!e.category) return;
+                const exists = categories.find(c => c.toLowerCase() === e.category.toLowerCase());
+                if (!exists) categories.push(e.category);
+            });
+            grid.innerHTML = '';
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'category-button';
+                btn.innerText = cat;
+                btn.addEventListener('click', () => {
+                    this.previousView = 'categories';
+                    this.displayCategoryList(cat);
+                });
+                grid.appendChild(btn);
+            });
+        }).catch(() => {
+            // if fetch fails, do nothing
+        });
     }
 }
 // Gets search term from input field
