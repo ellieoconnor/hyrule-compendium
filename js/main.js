@@ -6,7 +6,8 @@ class CompendiumApp {
     constructor() {
         this.apiService = new APIService();
         this.searchEngineClass = new SearchEngine();
-        this.uiController = new UIController(this.apiService, this.searchEngineClass);
+        this.compendiumEntryClass = new CompendiumEntry(this.apiService);
+        this.uiController = new UIController(this.apiService, this.searchEngineClass, this.compendiumEntryClass);
 
         // Event listeners in the UI
         this.uiController.setupEventListeners();
@@ -42,6 +43,52 @@ class APIService {
                 this.compendiumData = apiResponse.data;
                 console.log('From getAllData:', this.compendiumData);
                 return this.compendiumData;
+            })
+            .catch(err => {
+                console.error(`Error: ${err}`);
+                throw err;
+            })
+    }
+
+    /**
+     * Get api data specifically from category endpoint
+     * @param {category} category 
+     * @returns categoryData
+     */
+    getCategoryData(category) {
+        const url = `https://botw-compendium.herokuapp.com/api/v3/compendium/category/${category}`;
+        return fetch(url)
+            .then(response => response.json())
+            .then(apiResponse => {
+                if (apiResponse.status !== 200) {
+                    throw new Error(apiResponse.message);
+                }
+
+                const categoryData = apiResponse.data;
+                console.log('From category fetch:', categoryData);
+                return categoryData; // DON'T FORGET TO RETURN THE ACTUAL DATA!!
+            })
+            .catch(err => {
+                console.error(`Error: ${err}`);
+                throw err;
+            });
+    }
+
+    /**
+     * Get api data for a single item
+     */
+    getItemData(itemName) {
+        const url = `https://botw-compendium.herokuapp.com/api/v3/compendium/entry/${itemName}`;
+        return fetch(url)
+            .then(response => response.json())
+            .then(apiResponse => {
+                if (apiResponse.status !== 200) {
+                    throw new Error(apiResponse.message);
+                }
+
+                const entryItemData = apiResponse.data;
+                console.log('From getItemData', entryItemData);
+                return entryItemData;
             })
             .catch(err => {
                 console.error(`Error: ${err}`);
@@ -86,7 +133,7 @@ class SearchEngine {
  */
 class UIController {
     // constructor to set up the class and it's properties and methods
-    constructor(apiService, searchEngineClass) { // receive the class passed in the CompendiumApp constructor
+    constructor(apiService, searchEngineClass, compendiumEntryClass) { // receive the class passed in the CompendiumApp constructor
         this.apiService = apiService; // Store it in this class to be used.
         this.searchEngineClass = searchEngineClass;
         // navigation / state tracking
@@ -186,10 +233,25 @@ class UIController {
             });
             grid.appendChild(el);
         });
-    };
+    }
 
-    displayCategories(xyz) {
-        // display categories in the DOM
+    // For category clicks
+    handleCategoryClick(badgeCategory) {
+        this.apiService.getCategoryData(badgeCategory).then(categoryEntries => {
+            this.displayCategoryList(badgeCategory, categoryEntries)
+        });
+    }
+
+    // For entry list click
+    handleEntryItemClick(itemName) {
+        console.log('handleEntryItemClick');
+        // call api for item search
+        this.apiService.getItemData(itemName).then(itemEntry => {
+            if (itemEntry) {
+                this.hideItemListView();
+                this.displaySingleEntry(itemEntry);
+            }
+        })
     }
 
     // Display single entry view
@@ -215,7 +277,17 @@ class UIController {
         document.querySelector('.results').classList.add('hidden');
     }
 
-    displayCategoryList(category) {
+    hideItemListView() {
+        const entryListSection = document.querySelector('.entry-list-section');
+        entryListSection.classList.add('hidden');
+    }
+
+    /**
+     * Display the list of categories after a click on a category
+     * @param {} categoryTitle
+     * @param {*} categoryList
+     */
+    displayCategoryList(categoryTitle, categoryList) {
         this.hideSingleEntry(); // Hide the entry card
         this.previousView = this.currentView;
         this.currentView = 'categoryList';
@@ -301,7 +373,16 @@ class UIController {
 // Displays results in the DOM
 // Shows "no results" message when needed.
 
-class CompendiumEntry { }
+class CompendiumEntry {
+    // helper method? to loop through categories
+    createArrayOfItemNames(items) {
+        let listOfItemNames = items.map(entry => {
+            return entry.name.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(" ");
+        });
+
+        return listOfItemNames;
+    }
+}
 
 /**
  * Tracks current view, previous view, navigation stack
@@ -313,7 +394,11 @@ class AppStateManager { }
  */
 class NavigationController { }
 
-class CategoryController { }
+class CategoryController {
+    /**
+     * Gets the categories
+     */
+}
 
 class ItemDetailController { }
 
@@ -326,13 +411,13 @@ const compendiumApp = new CompendiumApp();
 
 /**Todo List:
 Phase 1: CORE FUNCTIONALITY (PRIORITY ORDER)
-    1. Display categories on page load
-        - Show all 5 category buttons (creatures, equipment, materials, monsters, treasure)
-        - Make them clickable
+    1. ✅ Display categories on page load
+        - ✅ Show all 5 category buttons (creatures, equipment, materials, monsters, treasure)
+        - ✅ Make them clickable
     2. Category click -> Entry list view
-        - Show all entries in that category
-        - Display as grid/list of clickable items
-        - Add "Back to Categories" button
+        - ✅ Show all entries in that category
+        - ✅ Display as grid/list of clickable items
+        - ✅ Add "Back to Categories" button
     3. Entry list click -> Single Entry Detail
         - Show the full entry card
         - Add back button that returns to entry list

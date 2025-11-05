@@ -133,6 +133,33 @@ header .subtitle {
   margin: 2rem auto;
   padding: 0 1rem;
 }
+
+#entry-list-grid-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#entry-list-grid-results li {
+  padding: 0.5rem 0.75rem;
+  background: var(--card-bg);
+  border: 2px solid var(--primary-blue);
+  border-radius: 8px;
+  color: var(--text-light);
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-align: center;
+}
+
+#entry-list-grid-results li:hover {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 4px 16px var(--shadow-color);
+  transform: translateY(-2px);
+}
 /******************************************
 /* ENTRY CARD
 /*******************************************/
@@ -170,19 +197,23 @@ header .subtitle {
 }
 
 .category-badge {
-  background: linear-gradient(
-    135deg,
-    var(--secondary-blue) 0%,
-    var(--primary-blue) 100%
-  );
   color: var(--text-light);
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  border: 1px solid var(--accent-cyan);
+  padding: 0.25rem 0.5rem;
   font-size: 0.9rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
+
+  &:hover {
+    background: linear-gradient(
+      135deg,
+      var(--secondary-blue) 0%,
+      var(--primary-blue) 100%
+    );
+    border-radius: 10px;
+    border: 1px solid var(--accent-cyan);
+    transform: translateY(-2px);
+  }
 }
 /* Card Body */
 .entry-body {
@@ -190,6 +221,10 @@ header .subtitle {
   grid-template-columns: 1fr 2fr;
   gap: 2rem;
   align-items: start;
+}
+
+.entry-list-section {
+  padding: 1rem 2.5rem;
 }
 
 .image-container {
@@ -247,6 +282,23 @@ header .subtitle {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
+  }
+
+  #entry-list-grid-results {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  #entry-list-grid-results {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  #entry-list-grid-results li {
+    padding: 0.75rem;
+    font-size: 1rem;
   }
 }
 /******************************************
