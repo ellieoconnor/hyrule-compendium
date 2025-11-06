@@ -230,7 +230,7 @@ class UIController {
     displayCategoryList(categoryTitle, categoryList) {
         this.hideSingleEntry(); // Hide the entry card
 
-        let entryListSection = document.querySelector('.entry-list-section');
+        const entryListSection = document.querySelector('.entry-list-section');
 
         entryListSection.classList.remove('hidden');
 
@@ -239,6 +239,11 @@ class UIController {
 
         let listOfNames = this.compendiumEntryClass.createArrayOfItemNames(categoryList)
         let list = document.getElementById("entry-list-grid-results");
+
+        if (list.hasChildNodes()) {
+            console.log('remove!')
+            list.innerHTML = '';
+        }
 
         // loop through the entries and create clickable links
         for (let i = 0; i < listOfNames.length; ++i) {
@@ -303,8 +308,8 @@ Phase 1: CORE FUNCTIONALITY (PRIORITY ORDER)
         - ✅ Display as grid/list of clickable items
         - ✅ Add "Back to Categories" button
     3. Entry list click -> Single Entry Detail
-        - Show the full entry card
-        - Add back button that returns to entry list
+        - ✅ Show the full entry card
+        - Show new items when a new category is clicked
     4. Search: Exact Match with Related Entries
         - If exact match found: show entry + card + related entries section
         - Related = same category + contains search term
