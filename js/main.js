@@ -41,7 +41,6 @@ class APIService {
                 }
 
                 this.compendiumData = apiResponse.data;
-                console.log('From getAllData:', this.compendiumData);
                 return this.compendiumData;
             })
             .catch(err => {
@@ -296,7 +295,21 @@ class ModalController { }
 class SearchResultsController { }
 
 // Create an instance of the compendium app
-const compendiumApp = new CompendiumApp();
+// Only run in browser, not during testing
+if (typeof module === 'undefined' || !module.exports) {
+    const compendiumApp = new CompendiumApp();
+}
+
+// For testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        CompendiumApp,
+        APIService,
+        SearchEngine,
+        UIController,
+        CompendiumEntry
+    };
+}
 
 /**Todo List:
 Phase 1: CORE FUNCTIONALITY (PRIORITY ORDER)
@@ -309,7 +322,7 @@ Phase 1: CORE FUNCTIONALITY (PRIORITY ORDER)
         - ✅ Add "Back to Categories" button
     3. Entry list click -> Single Entry Detail
         - ✅ Show the full entry card
-        - Show new items when a new category is clicked
+        - ✅ Show new items when a new category is clicked
     4. Search: Exact Match with Related Entries
         - If exact match found: show entry + card + related entries section
         - Related = same category + contains search term
