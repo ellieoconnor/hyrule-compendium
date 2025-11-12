@@ -41,7 +41,7 @@ class APIService {
                 }
 
                 this.compendiumData = apiResponse.data;
-                console.log('From getAllData:', this.compendiumData);
+                //console.log('From getAllData:', this.compendiumData);
                 return this.compendiumData;
             })
             .catch(err => {
@@ -65,7 +65,7 @@ class APIService {
                 }
 
                 const categoryData = apiResponse.data;
-                console.log('From category fetch:', categoryData);
+                //console.log('From category fetch:', categoryData);
                 return categoryData; // DON'T FORGET TO RETURN THE ACTUAL DATA!!
             })
             .catch(err => {
@@ -87,7 +87,7 @@ class APIService {
                 }
 
                 const entryItemData = apiResponse.data;
-                console.log('From getItemData', entryItemData);
+                //console.log('From getItemData', entryItemData);
                 return entryItemData;
             })
             .catch(err => {
@@ -186,7 +186,6 @@ class UIController {
 
     // For entry list click
     handleEntryItemClick(itemName) {
-        console.log('handleEntryItemClick');
         // call api for item search
         this.apiService.getItemData(itemName).then(itemEntry => {
             if (itemEntry) {
@@ -202,6 +201,9 @@ class UIController {
         let itemCategory;
         let itemDescription;
         let itemImage = null;
+        let itemLocationList;
+
+        console.log(resultData);
 
         // Remove the 'hidden' class for a visible entry card
         let entrySection = document.querySelector('.results');
@@ -211,6 +213,13 @@ class UIController {
         itemCategory = document.getElementById('item-category').innerHTML = resultData.category;
         itemDescription = document.getElementById('item-description').innerHTML = resultData.description;
         itemImage = document.getElementById('item-image').src = resultData.image;
+        itemLocationList = document.getElementById('location');
+
+        for (let i = 0; i < resultData?.common_locations?.length; ++i) {
+            let li = document.createElement('li');
+            li.innerText = resultData?.common_locations[i];
+            itemLocationList.appendChild(li);
+        }
     }
 
     hideSingleEntry() {
@@ -241,7 +250,7 @@ class UIController {
         let list = document.getElementById("entry-list-grid-results");
 
         if (list.hasChildNodes()) {
-            console.log('remove!')
+            //console.log('remove!')
             list.innerHTML = '';
         }
 
