@@ -1,13 +1,21 @@
+// helper method? to loop through categories
+function createArrayOfCategoryEntries(items) {
+    let listOfItemNames = items.map(entry => {
+        return entry.name.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(" ");
+    });
+
+    return listOfItemNames;
+};
+
 /**
- * Orchestrates everything and handles intial setup
+ * Orchestrates everything and handles initial setup
  */
 class CompendiumApp {
     // Creates instances of the other classes...sets up the application and it's properties and methods
     constructor() {
         this.apiService = new APIService();
-        this.searchEngineClass = new SearchEngine();
-        this.compendiumEntryClass = new CompendiumEntry(this.apiService);
-        this.uiController = new UIController(this.apiService, this.searchEngineClass, this.compendiumEntryClass);
+        this.searchEngine = new SearchEngine();
+        this.uiController = new UIController(this.apiService, this.searchEngine);
 
         // Event listeners in the UI
         this.uiController.setupEventListeners();
@@ -65,7 +73,6 @@ class APIService {
                 }
 
                 const categoryData = apiResponse.data;
-                //console.log('From category fetch:', categoryData);
                 return categoryData; // DON'T FORGET TO RETURN THE ACTUAL DATA!!
             })
             .catch(err => {
@@ -87,7 +94,6 @@ class APIService {
                 }
 
                 const entryItemData = apiResponse.data;
-                //console.log('From getItemData', entryItemData);
                 return entryItemData;
             })
             .catch(err => {
@@ -124,8 +130,6 @@ class SearchEngine {
         // return: data results sorted alphabetically by name
         return entries.sort((a, b) => a.name.localeCompare(b.name));
     };
-
-    // Returns the filtered/sorted results
 }
 
 /**
@@ -133,10 +137,9 @@ class SearchEngine {
  */
 class UIController {
     // constructor to set up the class and it's properties and methods
-    constructor(apiService, searchEngineClass, compendiumEntryClass) { // receive the class passed in the CompendiumApp constructor
+    constructor(apiService, searchEngine) { // receive the class passed in the CompendiumApp constructor
         this.apiService = apiService; // Store it in this class to be used.
-        this.searchEngineClass = searchEngineClass;
-        this.compendiumEntryClass = compendiumEntryClass;
+        this.searchEngine = searchEngine;
     }
 
     // Listens for search button clicks/enter key
@@ -165,7 +168,7 @@ class UIController {
         const searchTerm = document.querySelector('input').value;
 
         this.apiService.getAllData().then(compendiumEntries => {
-            const result = this.searchEngineClass.searchData(searchTerm, compendiumEntries);
+            const result = this.searchEngine.searchData(searchTerm, compendiumEntries);
 
             // UI Controller decides what to display
             if (result) {
@@ -215,6 +218,10 @@ class UIController {
         itemImage = document.getElementById('item-image').src = resultData.image;
         itemLocationList = document.getElementById('location');
 
+        if (itemLocationList.hasChildNodes()) {
+            itemLocationList.innerHTML = '';
+        }
+
         for (let i = 0; i < resultData?.common_locations?.length; ++i) {
             let li = document.createElement('li');
             li.innerText = resultData?.common_locations[i];
@@ -246,11 +253,10 @@ class UIController {
         // update category name
         document.getElementById('category-title').innerHTML = categoryTitle;
 
-        let listOfNames = this.compendiumEntryClass.createArrayOfItemNames(categoryList)
+        let listOfNames = createArrayOfCategoryEntries(categoryList)
         let list = document.getElementById("entry-list-grid-results");
 
         if (list.hasChildNodes()) {
-            //console.log('remove!')
             list.innerHTML = '';
         }
 
@@ -266,21 +272,7 @@ class UIController {
             list.appendChild(li);
         }
     }
-}
-// Gets search term from input field
-// Displays results in the DOM
-// Shows "no results" message when needed.
-
-class CompendiumEntry {
-    // helper method? to loop through categories
-    createArrayOfItemNames(items) {
-        let listOfItemNames = items.map(entry => {
-            return entry.name.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(" ");
-        });
-
-        return listOfItemNames;
-    }
-}
+};
 
 // Create an instance of the compendium app
 const compendiumApp = new CompendiumApp();
