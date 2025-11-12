@@ -273,28 +273,6 @@ class CompendiumEntry {
     }
 }
 
-/**
- * Tracks current view, previous view, navigation stack
- */
-class AppStateManager { }
-
-/**
- * Handles all view transitions and back button logic
- */
-class NavigationController { }
-
-class CategoryController {
-    /**
-     * Gets the categories
-     */
-}
-
-class ItemDetailController { }
-
-class ModalController { }
-
-class SearchResultsController { }
-
 // Create an instance of the compendium app
 const compendiumApp = new CompendiumApp();
 
