@@ -287,7 +287,7 @@ Phase 1: CORE FUNCTIONALITY (PRIORITY ORDER)
         - ✅ Add "Back to Categories" button
     3. Entry list click -> Single Entry Detail
         - ✅ Show the full entry card
-        - Show new items when a new category is clicked
+        - ✅ Show new items when a new category is clicked
     4. Search: Exact Match with Related Entries
         - If exact match found: show entry + card + related entries section
         - Related = same category + contains search term
@@ -299,14 +299,9 @@ Phase 1: CORE FUNCTIONALITY (PRIORITY ORDER)
         - Show friendly message when no matches found
     7. Empty search behaviour
         - Do nothing, keep categories visible
-    8. Back button navigation logic
-        - Track where user came from (category list vs search)
-        - Return to appropriate view
 PHASE 2: ENHANCEMENTS (OPTIONAL):
     1. Fuzzy matching 
         - "mogoblin" -> "moblin"
-    2. CSS refactoring
-        - Clean up and organise styles
 */
 
 /* 
