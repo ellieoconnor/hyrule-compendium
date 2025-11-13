@@ -35,27 +35,27 @@ class APIService {
         this.getAllData(); // Get all data at page load
     }
 
+    _fetchFromAPI(url) {
+        return fetch(url)
+            .then(response => response.json())
+            .then(apiResponse => {
+                return apiResponse.data;
+            })
+            .catch(err => {
+                console.error(`Error: ${err}`);
+            })
+    }
+
     getAllData() {
         if (this.compendiumData !== null) { // if empty run the below code
             return Promise.resolve(this.compendiumData);
         }
 
         const url = `https://botw-compendium.herokuapp.com/api/v3/compendium`;
-        return fetch(url)
-            .then(response => response.json()) // parse response as JSON
-            .then(apiResponse => {
-                if (apiResponse.status !== 200) {
-                    throw new Error(apiResponse.message);
-                }
-
-                this.compendiumData = apiResponse.data;
-                //console.log('From getAllData:', this.compendiumData);
-                return this.compendiumData;
-            })
-            .catch(err => {
-                console.error(`Error: ${err}`);
-                throw err;
-            })
+        return this._fetchFromAPI(url).then(data => {
+            this.compendiumData = data; // cache it
+            return data;
+        })
     }
 
     /**
@@ -65,20 +65,10 @@ class APIService {
      */
     getCategoryData(category) {
         const url = `https://botw-compendium.herokuapp.com/api/v3/compendium/category/${category}`;
-        return fetch(url)
-            .then(response => response.json())
-            .then(apiResponse => {
-                if (apiResponse.status !== 200) {
-                    throw new Error(apiResponse.message);
-                }
 
-                const categoryData = apiResponse.data;
-                return categoryData; // DON'T FORGET TO RETURN THE ACTUAL DATA!!
-            })
-            .catch(err => {
-                console.error(`Error: ${err}`);
-                throw err;
-            });
+        return this._fetchFromAPI(url).then(data => {
+            return data;
+        })
     }
 
     /**
@@ -86,20 +76,9 @@ class APIService {
      */
     getItemData(itemName) {
         const url = `https://botw-compendium.herokuapp.com/api/v3/compendium/entry/${itemName}`;
-        return fetch(url)
-            .then(response => response.json())
-            .then(apiResponse => {
-                if (apiResponse.status !== 200) {
-                    throw new Error(apiResponse.message);
-                }
-
-                const entryItemData = apiResponse.data;
-                return entryItemData;
-            })
-            .catch(err => {
-                console.error(`Error: ${err}`);
-                throw err;
-            })
+        return this._fetchFromAPI(url).then(data => {
+            return data;
+        })
     }
 }
 
@@ -206,7 +185,6 @@ class UIController {
         let itemImage = null;
         let itemLocationList;
 
-        console.log(resultData);
 
         // Remove the 'hidden' class for a visible entry card
         let entrySection = document.querySelector('.results');
