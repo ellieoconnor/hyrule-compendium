@@ -190,6 +190,16 @@ class CompendiumView {
         const entryListSection = document.querySelector('.entry-list-section');
         entryListSection.classList.add('hidden');
     }
+
+    displayNoResults() {
+        this.hideSingleEntry();
+        this.hideItemListView();
+        document.querySelector('.no-results').classList.remove('hidden');
+    }
+
+    hideNoResults() {
+        document.querySelector('.no-results').classList.add('hidden');
+    }
 }
 
 /**
@@ -233,11 +243,11 @@ class UIController {
 
             // UI Controller decides what to display
             if (result) {
+                this.compendiumView.hideNoResults();
                 this.compendiumView.displaySingleEntry(result);
+            } else {
+                this.compendiumView.displayNoResults();
             }
-            // else {
-            //   this.showNoResults();
-            // }
         });
     }
 
