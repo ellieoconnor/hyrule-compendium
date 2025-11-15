@@ -115,6 +115,83 @@ class SearchEngine {
     };
 }
 
+class CompendiumView {
+
+    // Display single entry view
+    displaySingleEntry(resultData) {
+        let itemName = null;
+        let itemCategory;
+        let itemDescription;
+        let itemImage = null;
+        let itemLocationList;
+
+
+        // Remove the 'hidden' class for a visible entry card
+        let entrySection = document.querySelector('.results');
+        entrySection.classList.remove('hidden');
+
+        itemName = document.getElementById('item-name').innerHTML = resultData.name;
+        itemCategory = document.getElementById('item-category').innerHTML = resultData.category;
+        itemDescription = document.getElementById('item-description').innerHTML = resultData.description;
+        itemImage = document.getElementById('item-image').src = resultData.image;
+        itemLocationList = document.getElementById('location');
+
+        if (itemLocationList.hasChildNodes()) {
+            itemLocationList.innerHTML = '';
+        }
+
+        for (let i = 0; i < resultData?.common_locations?.length; ++i) {
+            let li = document.createElement('li');
+            li.innerText = resultData?.common_locations[i];
+            itemLocationList.appendChild(li);
+        }
+    }
+
+    /**
+     * Display the list of categories after a click on a category
+     * @param {} categoryTitle
+     * @param {*} categoryList
+     */
+    displayCategoryList(categoryTitle, categoryList, onEntryClick) {
+        this.hideSingleEntry(); // Hide the entry card
+
+        const entryListSection = document.querySelector('.entry-list-section');
+
+        entryListSection.classList.remove('hidden');
+
+        // update category name
+        document.getElementById('category-title').innerHTML = categoryTitle;
+
+        let listOfNames = createArrayOfCategoryEntries(categoryList)
+        let list = document.getElementById("entry-list-grid-results");
+
+        if (list.hasChildNodes()) {
+            list.innerHTML = '';
+        }
+
+        // loop through the entries and create clickable links
+        for (let i = 0; i < listOfNames.length; ++i) {
+            let li = document.createElement('li');
+            li.innerText = listOfNames[i];
+            li.setAttribute('data-original-name', categoryList[i].name);
+            li.addEventListener('click', () => {
+                const itemName = li.getAttribute('data-original-name')
+                onEntryClick(itemName);
+            })
+            list.appendChild(li);
+        }
+    }
+
+    hideSingleEntry() {
+        document.querySelector('.results').classList.add('hidden');
+    }
+
+    hideItemListView() {
+        const entryListSection = document.querySelector('.entry-list-section');
+        entryListSection.classList.add('hidden');
+    }
+}
+
 /**
  * Coordinates with other controllers to update the DOM.
  */
@@ -123,6 +200,7 @@ class UIController {
     constructor(apiService, searchEngine) { // receive the class passed in the CompendiumApp constructor
         this.apiService = apiService; // Store it in this class to be used.
         this.searchEngine = searchEngine;
+        this.compendiumView = new CompendiumView();
     }
 
     // Listens for search button clicks/enter key
@@ -155,7 +233,7 @@ class UIController {
 
             // UI Controller decides what to display
             if (result) {
-                this.displaySingleEntry(result);
+                this.compendiumView.displaySingleEntry(result);
             }
             // else {
             //   this.showNoResults();
@@ -166,7 +244,7 @@ class UIController {
     // For category clicks
     handleCategoryClick(badgeCategory) {
         this.apiService.getCategoryData(badgeCategory).then(categoryEntries => {
-            this.displayCategoryList(badgeCategory, categoryEntries)
+            this.compendiumView.displayCategoryList(badgeCategory, categoryEntries, (itemName) => this.handleEntryItemClick(itemName))
         });
     }
 
@@ -175,84 +253,10 @@ class UIController {
         // call api for item search
         this.apiService.getItemData(itemName).then(itemEntry => {
             if (itemEntry) {
-                this.hideItemListView();
-                this.displaySingleEntry(itemEntry);
+                this.compendiumView.hideItemListView();
+                this.compendiumView.displaySingleEntry(itemEntry);
             }
         })
-    }
-
-    // Display single entry view
-    displaySingleEntry(resultData) {
-        let itemName = null;
-        let itemCategory;
-        let itemDescription;
-        let itemImage = null;
-        let itemLocationList;
-
-
-        // Remove the 'hidden' class for a visible entry card
-        let entrySection = document.querySelector('.results');
-        entrySection.classList.remove('hidden');
-
-        itemName = document.getElementById('item-name').innerHTML = resultData.name;
-        itemCategory = document.getElementById('item-category').innerHTML = resultData.category;
-        itemDescription = document.getElementById('item-description').innerHTML = resultData.description;
-        itemImage = document.getElementById('item-image').src = resultData.image;
-        itemLocationList = document.getElementById('location');
-
-        if (itemLocationList.hasChildNodes()) {
-            itemLocationList.innerHTML = '';
-        }
-
-        for (let i = 0; i < resultData?.common_locations?.length; ++i) {
-            let li = document.createElement('li');
-            li.innerText = resultData?.common_locations[i];
-            itemLocationList.appendChild(li);
-        }
-    }
-
-    hideSingleEntry() {
-        document.querySelector('.results').classList.add('hidden');
-    }
-
-    hideItemListView() {
-        const entryListSection = document.querySelector('.entry-list-section');
-        entryListSection.classList.add('hidden');
-    }
-
-    /**
-     * Display the list of categories after a click on a category
-     * @param {} categoryTitle
-     * @param {*} categoryList
-     */
-    displayCategoryList(categoryTitle, categoryList) {
-        this.hideSingleEntry(); // Hide the entry card
-
-        const entryListSection = document.querySelector('.entry-list-section');
-
-        entryListSection.classList.remove('hidden');
-
-        // update category name
-        document.getElementById('category-title').innerHTML = categoryTitle;
-
-        let listOfNames = createArrayOfCategoryEntries(categoryList)
-        let list = document.getElementById("entry-list-grid-results");
-
-        if (list.hasChildNodes()) {
-            list.innerHTML = '';
-        }
-
-        // loop through the entries and create clickable links
-        for (let i = 0; i < listOfNames.length; ++i) {
-            let li = document.createElement('li');
-            li.innerText = listOfNames[i];
-            li.setAttribute('data-original-name', categoryList[i].name);
-            li.addEventListener('click', () => {
-                const itemName = li.getAttribute('data-original-name')
-                this.handleEntryItemClick(itemName);
-            })
-            list.appendChild(li);
-        }
     }
 };
 
