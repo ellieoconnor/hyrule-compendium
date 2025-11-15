@@ -39,6 +39,11 @@ class APIService {
         return fetch(url)
             .then(response => response.json())
             .then(apiResponse => {
+
+                if (apiResponse.status !== 200) {
+                    throw new Error(apiResponse.message);
+                }
+
                 return apiResponse.data;
             })
             .catch(err => {
@@ -91,7 +96,6 @@ class SearchEngine {
         if (searchTerm.trim() === '') {
             // return all data sorted alphabetically
             return this.sortEntriesAlphabetically(entries);
-            // console.log('From searchData:', this.sortResultsAlphabetically(allData));
         }
         return this.findExactMatch(searchTerm, entries);
     };
