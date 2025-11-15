@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -112,9 +112,19 @@
           <div class="description-container">
             <h3 class="description-label">Description</h3>
             <p id="item-description">Description text...</p>
+            <div class="location-container">
+              <h4 class="description-label">Location(s)</h4>
+              <ul id="location"></ul>
+            </div>
           </div>
         </div>
       </article>
+    </section>
+
+    <!-- No Results View -->
+    <section class="no-results hidden">
+      <h2>No Results Found</h2>
+      <p>The item you searched for could not be found in the compendium. Try searching for a different item or browse by category.</p>
     </section>
 
     <script type="text/javascript" src="js/main.js"></script>
