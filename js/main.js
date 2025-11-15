@@ -271,7 +271,21 @@ class UIController {
 };
 
 // Create an instance of the compendium app
-const compendiumApp = new CompendiumApp();
+// Only run in browser, not during testing
+if (typeof module === 'undefined' || !module.exports) {
+    const compendiumApp = new CompendiumApp();
+}
+
+// For testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        CompendiumApp,
+        APIService,
+        SearchEngine,
+        UIController,
+        CompendiumEntry
+    };
+}
 
 /**Todo List:
 Phase 1: CORE FUNCTIONALITY (PRIORITY ORDER)
