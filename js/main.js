@@ -1,13 +1,21 @@
+// helper method? to loop through categories
+function createArrayOfCategoryEntries(items) {
+    let listOfItemNames = items.map(entry => {
+        return entry.name.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(" ");
+    });
+
+    return listOfItemNames;
+};
+
 /**
- * Orchestrates everything and handles intial setup
+ * Orchestrates everything and handles initial setup
  */
 class CompendiumApp {
     // Creates instances of the other classes...sets up the application and it's properties and methods
     constructor() {
         this.apiService = new APIService();
-        this.searchEngineClass = new SearchEngine();
-        this.compendiumEntryClass = new CompendiumEntry(this.apiService);
-        this.uiController = new UIController(this.apiService, this.searchEngineClass, this.compendiumEntryClass);
+        this.searchEngine = new SearchEngine();
+        this.uiController = new UIController(this.apiService, this.searchEngine);
 
         // Event listeners in the UI
         this.uiController.setupEventListeners();
@@ -27,27 +35,32 @@ class APIService {
         this.getAllData(); // Get all data at page load
     }
 
+    _fetchFromAPI(url) {
+        return fetch(url)
+            .then(response => response.json())
+            .then(apiResponse => {
+
+                if (apiResponse.status !== 200) {
+                    throw new Error(apiResponse.message);
+                }
+
+                return apiResponse.data;
+            })
+            .catch(err => {
+                console.error(`Error: ${err}`);
+            })
+    }
+
     getAllData() {
         if (this.compendiumData !== null) { // if empty run the below code
             return Promise.resolve(this.compendiumData);
         }
 
         const url = `https://botw-compendium.herokuapp.com/api/v3/compendium`;
-        return fetch(url)
-            .then(response => response.json()) // parse response as JSON
-            .then(apiResponse => {
-                if (apiResponse.status !== 200) {
-                    throw new Error(apiResponse.message);
-                }
-
-                this.compendiumData = apiResponse.data;
-                console.log('From getAllData:', this.compendiumData);
-                return this.compendiumData;
-            })
-            .catch(err => {
-                console.error(`Error: ${err}`);
-                throw err;
-            })
+        return this._fetchFromAPI(url).then(data => {
+            this.compendiumData = data; // cache it
+            return data;
+        })
     }
 
     /**
@@ -57,21 +70,10 @@ class APIService {
      */
     getCategoryData(category) {
         const url = `https://botw-compendium.herokuapp.com/api/v3/compendium/category/${category}`;
-        return fetch(url)
-            .then(response => response.json())
-            .then(apiResponse => {
-                if (apiResponse.status !== 200) {
-                    throw new Error(apiResponse.message);
-                }
 
-                const categoryData = apiResponse.data;
-                console.log('From category fetch:', categoryData);
-                return categoryData; // DON'T FORGET TO RETURN THE ACTUAL DATA!!
-            })
-            .catch(err => {
-                console.error(`Error: ${err}`);
-                throw err;
-            });
+        return this._fetchFromAPI(url).then(data => {
+            return data;
+        })
     }
 
     /**
@@ -79,21 +81,9 @@ class APIService {
      */
     getItemData(itemName) {
         const url = `https://botw-compendium.herokuapp.com/api/v3/compendium/entry/${itemName}`;
-        return fetch(url)
-            .then(response => response.json())
-            .then(apiResponse => {
-                if (apiResponse.status !== 200) {
-                    throw new Error(apiResponse.message);
-                }
-
-                const entryItemData = apiResponse.data;
-                console.log('From getItemData', entryItemData);
-                return entryItemData;
-            })
-            .catch(err => {
-                console.error(`Error: ${err}`);
-                throw err;
-            })
+        return this._fetchFromAPI(url).then(data => {
+            return data;
+        })
     }
 }
 
@@ -106,7 +96,6 @@ class SearchEngine {
         if (searchTerm.trim() === '') {
             // return all data sorted alphabetically
             return this.sortEntriesAlphabetically(entries);
-            // console.log('From searchData:', this.sortResultsAlphabetically(allData));
         }
         return this.findExactMatch(searchTerm, entries);
     };
@@ -124,8 +113,93 @@ class SearchEngine {
         // return: data results sorted alphabetically by name
         return entries.sort((a, b) => a.name.localeCompare(b.name));
     };
+}
 
-    // Returns the filtered/sorted results
+class CompendiumView {
+
+    // Display single entry view
+    displaySingleEntry(resultData) {
+        let itemName = null;
+        let itemCategory;
+        let itemDescription;
+        let itemImage = null;
+        let itemLocationList;
+
+
+        // Remove the 'hidden' class for a visible entry card
+        let entrySection = document.querySelector('.results');
+        entrySection.classList.remove('hidden');
+
+        itemName = document.getElementById('item-name').innerHTML = resultData.name;
+        itemCategory = document.getElementById('item-category').innerHTML = resultData.category;
+        itemDescription = document.getElementById('item-description').innerHTML = resultData.description;
+        itemImage = document.getElementById('item-image').src = resultData.image;
+        itemLocationList = document.getElementById('location');
+
+        if (itemLocationList.hasChildNodes()) {
+            itemLocationList.innerHTML = '';
+        }
+
+        for (let i = 0; i < resultData?.common_locations?.length; ++i) {
+            let li = document.createElement('li');
+            li.innerText = resultData?.common_locations[i];
+            itemLocationList.appendChild(li);
+        }
+    }
+
+    /**
+     * Display the list of categories after a click on a category
+     * @param {} categoryTitle
+     * @param {*} categoryList
+     */
+    displayCategoryList(categoryTitle, categoryList, onEntryClick) {
+        this.hideSingleEntry(); // Hide the entry card
+
+        const entryListSection = document.querySelector('.entry-list-section');
+
+        entryListSection.classList.remove('hidden');
+
+        // update category name
+        document.getElementById('category-title').innerHTML = categoryTitle;
+
+        let listOfNames = createArrayOfCategoryEntries(categoryList)
+        let list = document.getElementById("entry-list-grid-results");
+
+        if (list.hasChildNodes()) {
+            list.innerHTML = '';
+        }
+
+        // loop through the entries and create clickable links
+        for (let i = 0; i < listOfNames.length; ++i) {
+            let li = document.createElement('li');
+            li.innerText = listOfNames[i];
+            li.setAttribute('data-original-name', categoryList[i].name);
+            li.addEventListener('click', () => {
+                const itemName = li.getAttribute('data-original-name')
+                onEntryClick(itemName);
+            })
+            list.appendChild(li);
+        }
+    }
+
+    hideSingleEntry() {
+        document.querySelector('.results').classList.add('hidden');
+    }
+
+    hideItemListView() {
+        const entryListSection = document.querySelector('.entry-list-section');
+        entryListSection.classList.add('hidden');
+    }
+
+    displayNoResults() {
+        this.hideSingleEntry();
+        this.hideItemListView();
+        document.querySelector('.no-results').classList.remove('hidden');
+    }
+
+    hideNoResults() {
+        document.querySelector('.no-results').classList.add('hidden');
+    }
 }
 
 /**
@@ -133,10 +207,10 @@ class SearchEngine {
  */
 class UIController {
     // constructor to set up the class and it's properties and methods
-    constructor(apiService, searchEngineClass, compendiumEntryClass) { // receive the class passed in the CompendiumApp constructor
+    constructor(apiService, searchEngine) { // receive the class passed in the CompendiumApp constructor
         this.apiService = apiService; // Store it in this class to be used.
-        this.searchEngineClass = searchEngineClass;
-        this.compendiumEntryClass = compendiumEntryClass;
+        this.searchEngine = searchEngine;
+        this.compendiumView = new CompendiumView();
     }
 
     // Listens for search button clicks/enter key
@@ -165,113 +239,36 @@ class UIController {
         const searchTerm = document.querySelector('input').value;
 
         this.apiService.getAllData().then(compendiumEntries => {
-            const result = this.searchEngineClass.searchData(searchTerm, compendiumEntries);
+            const result = this.searchEngine.searchData(searchTerm, compendiumEntries);
 
             // UI Controller decides what to display
             if (result) {
-                this.displaySingleEntry(result);
+                this.compendiumView.hideNoResults();
+                this.compendiumView.displaySingleEntry(result);
+            } else {
+                this.compendiumView.displayNoResults();
             }
-            // else {
-            //   this.showNoResults();
-            // }
         });
     }
 
     // For category clicks
     handleCategoryClick(badgeCategory) {
         this.apiService.getCategoryData(badgeCategory).then(categoryEntries => {
-            this.displayCategoryList(badgeCategory, categoryEntries)
+            this.compendiumView.displayCategoryList(badgeCategory, categoryEntries, (itemName) => this.handleEntryItemClick(itemName))
         });
     }
 
     // For entry list click
     handleEntryItemClick(itemName) {
-        console.log('handleEntryItemClick');
         // call api for item search
         this.apiService.getItemData(itemName).then(itemEntry => {
             if (itemEntry) {
-                this.hideItemListView();
-                this.displaySingleEntry(itemEntry);
+                this.compendiumView.hideItemListView();
+                this.compendiumView.displaySingleEntry(itemEntry);
             }
         })
     }
-
-    // Display single entry view
-    displaySingleEntry(resultData) {
-        let itemName = null;
-        let itemCategory;
-        let itemDescription;
-        let itemImage = null;
-
-        // Remove the 'hidden' class for a visible entry card
-        let entrySection = document.querySelector('.results');
-        entrySection.classList.remove('hidden');
-
-        itemName = document.getElementById('item-name').innerHTML = resultData.name;
-        itemCategory = document.getElementById('item-category').innerHTML = resultData.category;
-        itemDescription = document.getElementById('item-description').innerHTML = resultData.description;
-        itemImage = document.getElementById('item-image').src = resultData.image;
-    }
-
-    hideSingleEntry() {
-        document.querySelector('.results').classList.add('hidden');
-    }
-
-    hideItemListView() {
-        const entryListSection = document.querySelector('.entry-list-section');
-        entryListSection.classList.add('hidden');
-    }
-
-    /**
-     * Display the list of categories after a click on a category
-     * @param {} categoryTitle
-     * @param {*} categoryList
-     */
-    displayCategoryList(categoryTitle, categoryList) {
-        this.hideSingleEntry(); // Hide the entry card
-
-        const entryListSection = document.querySelector('.entry-list-section');
-
-        entryListSection.classList.remove('hidden');
-
-        // update category name
-        document.getElementById('category-title').innerHTML = categoryTitle;
-
-        let listOfNames = this.compendiumEntryClass.createArrayOfItemNames(categoryList)
-        let list = document.getElementById("entry-list-grid-results");
-
-        if (list.hasChildNodes()) {
-            console.log('remove!')
-            list.innerHTML = '';
-        }
-
-        // loop through the entries and create clickable links
-        for (let i = 0; i < listOfNames.length; ++i) {
-            let li = document.createElement('li');
-            li.innerText = listOfNames[i];
-            li.setAttribute('data-original-name', categoryList[i].name);
-            li.addEventListener('click', () => {
-                const itemName = li.getAttribute('data-original-name')
-                this.handleEntryItemClick(itemName);
-            })
-            list.appendChild(li);
-        }
-    }
-}
-// Gets search term from input field
-// Displays results in the DOM
-// Shows "no results" message when needed.
-
-class CompendiumEntry {
-    // helper method? to loop through categories
-    createArrayOfItemNames(items) {
-        let listOfItemNames = items.map(entry => {
-            return entry.name.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(" ");
-        });
-
-        return listOfItemNames;
-    }
-}
+};
 
 // Create an instance of the compendium app
 const compendiumApp = new CompendiumApp();
