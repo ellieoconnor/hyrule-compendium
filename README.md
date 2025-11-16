@@ -1,9 +1,10 @@
 # Legend of Zelda: Breath of the Wild Compendium
+
 An interactive encyclopedia for The Legend of Zelda: Breath of the Wild that allows users to search and browse through all in-game creatures, monsters, materials, equipment, and treasures. Built with vanilla JavaScript and the Hyrule Compendium API.
 
 **Link to project:** https://hyrule-botw-compendium.netlify.app/
 
-![alt tag]()
+![alt tag](botw-compendium.gif)
 
 ## How It's Made:
 
@@ -17,6 +18,7 @@ This project is built using vanilla JavaScript with an object-oriented approach,
 - **CompendiumView**: Handles all DOM manipulation and view state management.
 
 The app fetches data from the Hyrule Compendium API, caches it on first load for better performance, and provides three main ways to explore content:
+
 1. Browse by category (creatures, monsters, materials, equipment, treasure)
 2. Search for specific items by name
 3. Click through category entry lists to view detailed information
@@ -41,11 +43,10 @@ Use another API get access to recipes used in the game and the edible items in t
 
 The project reinforced the importance of planning class architecture before diving into code. Implementing the separation of concerns pattern made debugging easier - when something went wrong with the UI, I knew exactly which class to check.
 
-Refactoring was where I think I learned the most. Getting it built first then pulling reusable functions, eliminating unnecessary classes in favour of helper functions, and separating out bloated classes into new classes or more helper functions taught me a lot about how to better plan for a project next time. 
+Refactoring was where I think I learned the most. Getting it built first then pulling reusable functions, eliminating unnecessary classes in favour of helper functions, and separating out bloated classes into new classes or more helper functions taught me a lot about how to better plan for a project next time.
 I learned an approach to classes is that a class is made up of behaviour and state. Without both of those, it's not really a class.
 
-Working with a third-party API taught me the value of caching data and handling edge cases like missing location data (using optional chaining with `resultData?.common_locations`). 
+Working with a third-party API taught me the value of caching data and handling edge cases like missing location data (using optional chaining with `resultData?.common_locations`).
 
 I found writing tests to be challenging. I see where test-driven development is useful - to write the desired behaviour, fail the test, then fix the test. Writing the functions/methods first then the tests is a bit more challenging. I have to ask, is this a problem with the test, the test set-up, or my code itself.
 Building this project without a framework challenged me to really understand DOM manipulation, event handling, and state management at a fundamental level, which has made me more confident in working with any JavaScript framework.
-

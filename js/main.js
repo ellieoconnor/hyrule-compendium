@@ -222,6 +222,13 @@ class UIController {
 
     setupSearchListener() {
         document.querySelector('button').addEventListener('click', () => this.handleSearchClick());
+
+        // Listen for Enter key on the search input
+        document.querySelector('input').addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                this.handleSearchClick();
+            }
+        });
     }
 
     setupCategoryListeners() {
@@ -282,8 +289,7 @@ if (typeof module !== 'undefined' && module.exports) {
         CompendiumApp,
         APIService,
         SearchEngine,
-        UIController,
-        CompendiumEntry
+        UIController
     };
 }
 
